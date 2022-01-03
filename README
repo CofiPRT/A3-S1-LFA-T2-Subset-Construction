@@ -1,0 +1,116 @@
+--- LIMBAJE FORMALE SI AUTOMATE ---
+--- TEMA 2. Subset Construction ---
+
+╦  ╔═╗╔═╗
+║  ╠╣ ╠═╣
+╩═╝╚  ╩ ╩
+
+Cuprins:
+	1. Biblioteci...................................Linia  24
+	2. Modularizare.................................Linia  39
+		2.1. Clasa "DFA"............................Linia  43
+		2.2. Clasa "NFA"............................Linia  54
+			2.2.1. Metoda "initEpsilonClosures".....Linia  57
+			2.2.2. Metoda "convertToDFA"............Linia  68
+		2.3. Functia "validateInput"................Linia  93
+		2.4. Functia "main".........................Linia 100
+	3. Alte detalii.................................Linia 109
+
+
+=== ============= ===
+=== 1. Biblioteci ===
+=== ============= ===
+
+Folosesc:
+	* sys
+		- Pentru acces la argumentele din linia de comanda
+
+	* traceback
+		- Pentru exception handling
+
+	* typing: Set, Dict, Tuple
+		- Pentru tiparea metodelor (type hints)
+
+
+=== =============== ===
+=== 2. Modularizare ===
+=== =============== ===
+
+--- ---------------- ---
+--- 2.1. Clasa "DFA" ---
+--- ---------------- ---
+
+Un obiect de acest tip reprezinta un DFA, cunoscandu-se starile, starile finale,
+alfabetul, si functia delta.
+
+Este overriden metoda "__str__" pentru a intoarce o reprezentare string a
+DFA-ului conform cerintei.
+
+
+--- ---------------- ---
+--- 2.1. Clasa "NFA" ---
+--- ---------------- ---
+
+--- 2.2.1. Metoda "initEpsilonClosures" ---
+
+Aceasta metoda initializeaza inchiderile epsilon pentru fiecare stare,
+realizand o singura parcurgere a NFA-ului. Astfel, ulterior se poate obtine
+in O(1) inchiderea epsilon a unei stari.
+
+Aceasta este o imbunatarie a implementarii cu o metoda "epsilonClosure" ce
+ar calcula, la apel, inchiderea epsilon a unei stari (lucru care se poate
+intampla din nou si ar avea acelasi rezultat)
+
+
+--- 2.2.2. Metoda "convertToDFA" ---
+
+Intoarce DFA-ul aferent obiectului de tip NFA.
+
+Definesc termenul "multi-state" drept o stare a DFA-ului rezultata din reuniunea
+mai multor stari ale NFA-ului.
+
+Se respecta urmatorul algoritm:
+	- Multi-state-ul initial este inchiderea cu epsilon asupra starii initiale
+	- Pentru fiecare multi-state neprocesat:
+		- Pentru fiecare caracter al alfabetului (mai putin epsilon):
+			- Se formeaza un nou multi-state ce reprezinta starile in care
+			automatul poate ajunge, pornind din orice stare din multi-state-ul
+			neprocesat, pe tranzitiile caracterului in cauza. Starile rezultate
+			sunt inchise cu epsilon
+			- Acest multi-state se adauga in coada de multi-state-uri
+			neprocesate
+	- Se stabilesc starile finale si se convertesc starile tranzitiilor din
+	multi-state-uri in stari ale DFA-ului. Un multi-state este stare finala
+	a DFA-ului daca acesta contine cel putin o stare finala a NFA-ului.
+
+Astfel, se intoarce DFA-ul generat
+
+
+--- ---------------------------- ---
+--- 2.3. Functia "validateInput" ---
+--- ---------------------------- ---
+
+Functie cu rol de sanity check
+
+
+--- ------------------- ---
+--- 2.3. Functia "main" ---
+--- ------------------- ---
+
+Se extrag informatiile necesare din fisierul de input (reprezentarea NFA-ului),
+dupa care se scrie solutia (reprezentarea DFA-ul convertit din acesta) in
+fisierul de output.
+
+
+=== =============== ===
+=== 4. Alte detalii ===
+=== =============== ===
+	La conversia din NFA in DFA, structurile de date extra au roluri precum
+	complexitate redusa (indexarea intr-un dictionar ale multi-state-urilor),
+	sau implementare corecta (conversiile din set in frozenset, intrucat doar
+	acesta din urma este hashable - aspect necesar pentru seturi/dictionare).
+
+	Am ales, prin metoda "initEpsilonClosures" (Linia 57), sa calculez initial,
+	printr-o singura parcurgere a NFA-ului, inchiderile epsilon pentru fiecare
+	stare, intrucat acestea sunt necesare de mai multe ori pe parcursul
+	conversiei in DFA dar ele nu se schimba.
